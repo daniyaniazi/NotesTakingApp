@@ -4,34 +4,40 @@ showNotes();
 let addBtn = document.getElementById('addNoteBtn');
 addBtn.addEventListener('click', function() {
         let addText = document.getElementById('addNoteTxt')
+        let addTitle = document.getElementById('addNoteTitle')
         let notes = localStorage.getItem('notes')
         if (notes == null) {
-            var notesObj = [];
+            var notesArr = [];
         } else {
-            notesObj = JSON.parse(notes)
+            notesArr = JSON.parse(notes)
         }
-        notesObj.push(addText.value)
-        localStorage.setItem('notes', JSON.stringify(notesObj));
+        let notesObj = {
+            title: addTitle.value,
+            note: addText.value
+        }
+        notesArr.unshift(notesObj)
+        localStorage.setItem('notes', JSON.stringify(notesArr));
         addText.value = '';
+        addTitle.value = '';
         // console.log(notes)
-        // console.log(notesObj)
+        // console.log(notesArr)
         showNotes();
     })
     // Show notes fucntion to add new note
 function showNotes() {
     let notes = localStorage.getItem('notes');
     if (notes == null) {
-        notesObj = [];
+        notesArr = [];
     } else {
-        notesObj = JSON.parse(notes)
+        notesArr = JSON.parse(notes)
     }
     let html = '';
-    notesObj.forEach(function(element, index) {
+    notesArr.forEach(function(element, index) {
         html += `
         <div class=" notecard card my-2 ml-5 col-md-3" style='box-sizing:border-box'>
         <div class="card-body">
-            <h5 class="card-title">Note ${index+1}</h5>
-            <p class="crad-text">${element}</p>
+            <h5 class="card-title"> ${element.title}</h5>
+            <p class="crad-text">${element.note}</p>
             <button class="btn btn-danger" id='${index}' onclick='deleteNote(this.id)'>Delete Note</button>
         </div>
     </div>`;
@@ -39,7 +45,7 @@ function showNotes() {
         // display notes card
     });
     let noteselem = document.getElementById('notes')
-    if (notesObj.length != 0) {
+    if (notesArr.length != 0) {
         noteselem.innerHTML = html;
     } else {
         noteselem.innerHTML = `<p>Nothing to show ! add a note :)`
@@ -52,13 +58,13 @@ function deleteNote(index) {
     // getting local storage
     notes = localStorage.getItem('notes');
     if (notes == null) {
-        notesObj = [];
+        notesArr = [];
     } else {
-        notesObj = JSON.parse(notes)
+        notesArr = JSON.parse(notes)
     }
-    notesObj.splice(index, 1);
+    notesArr.splice(index, 1);
     //   update local storage
-    localStorage.setItem('notes', JSON.stringify(notesObj));
+    localStorage.setItem('notes', JSON.stringify(notesArr));
     // refresh notes
     showNotes();
 }
@@ -75,8 +81,9 @@ function search() {
     let noteCard = document.getElementsByClassName('notecard');
     Array.from(noteCard).forEach(element => {
         let cardTxt = element.getElementsByTagName('p')[0].innerText;
+        let cardtitle = element.getElementsByTagName('h5')[0].innerText;
         // console.log(cardTxt)
-        if (cardTxt.includes(inpval)) {
+        if (cardTxt.includes(inpval) || cardtitle.includes(inpval)) {
             element.style.display = 'block';
             var foundelem = element;
         } else {
